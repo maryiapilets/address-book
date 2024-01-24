@@ -15,7 +15,7 @@ struct Zapis {
     string numer;
     string email;
     string adres;
-}
+};
 
 string wczytajLinie() {
     string wejscie = "";
@@ -64,11 +64,8 @@ void zapiszZapisDoPliku(Zapis zapis) {
     }
 }
 
-void dodajZapis(vector <Zapis> &zapisy) {
-    int id_najwieksze = 0;
-    if (zapisy.size() > 0) {
-        id_najwieksze = zapisy.back().id;
-    }
+int dodajZapis(vector <Zapis> &zapisy,int idNajwieksze) {
+
     Zapis zapis;
     cout << "Wprowadz imie" << endl;
     zapis.imie = wczytajLinie();
@@ -79,11 +76,14 @@ void dodajZapis(vector <Zapis> &zapisy) {
     cout << "Wprowadz email" << endl;
     zapis.email = wczytajLinie();
     cout << "Wprowadz adres" << endl;
+
     zapis.adres = wczytajLinie();
-    zapis.id = id_najwieksze + 1;
+    zapis.id = idNajwieksze + 1;
     zapisy.push_back(zapis);
     zapiszZapisDoPliku(zapis);
     system ("pause");
+    idNajwieksze++;
+    return idNajwieksze;
 }
 
 void wypiszZapis(Zapis zapis) {
@@ -199,7 +199,7 @@ void usunZapis(vector <Zapis> &zapisy) {
     system ("pause");
 }
 
-void odczytZPliku(vector <Zapis> &zapisy) {
+int odczytZPliku(vector <Zapis> &zapisy, int idNajwieksze) {
     Zapis zapis;
     string linia = "";
     fstream plik;
@@ -208,7 +208,7 @@ void odczytZPliku(vector <Zapis> &zapisy) {
     if(plik.good() == false) {
         cout << "Nie mozna otworzyc pliku!" << endl;
     }
-    
+
     while (getline(plik, linia)) {
         stringstream ss(linia);
         string id;
@@ -219,10 +219,12 @@ void odczytZPliku(vector <Zapis> &zapisy) {
         getline(ss, zapis.email, '|');
         getline(ss, zapis.numer, '|');
         getline(ss, zapis.adres, '|');
+        idNajwieksze = zapis.id;
         zapisy.push_back(zapis);
 
     }
     plik.close();
+    return idNajwieksze;
 }
 
 void edytujZapis(vector <Zapis> &zapisy) {
@@ -235,13 +237,13 @@ void edytujZapis(vector <Zapis> &zapisy) {
         cout << "Wprowadz id zapisu ktory chcesz edytowac" << endl;
         idDoEdycji = wczytajLiczbeCalkowita();
         bool idZnalezione = false;
-        
+
         for (Zapis zapis: zapisy) {
             if (zapis.id == idDoEdycji) {
                 idZnalezione = true;
             }
         }
-        
+
         if (!idZnalezione) {
             cout << "Nie ma zapisu z takim id" << endl;
         } else {
@@ -299,9 +301,11 @@ void edytujZapis(vector <Zapis> &zapisy) {
 int main()
 
 {
+    int idZalogowanegoUzytkownika = 0;
+    int idNajwieksze = 0;
     char wybor;
     vector <Zapis> zapisy;
-    odczytZPliku(zapisy);
+    idNajwieksze = odczytZPliku(zapisy, idNajwieksze);
     system("cls");
 
     while(true) {
@@ -317,7 +321,7 @@ int main()
         wybor = wczytajZnak();
         switch (wybor) {
         case '1':
-            dodajZapis(zapisy);
+            idNajwieksze = dodajZapis(zapisy,idNajwieksze);
             break;
         case '2':
             wyszukajPoImieniu(zapisy);
